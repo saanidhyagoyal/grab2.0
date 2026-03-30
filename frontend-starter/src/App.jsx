@@ -1,336 +1,376 @@
-import { useMemo, useState } from "react";
-import "./styles.css";
+import React, { useState, useEffect, useRef } from 'react';
 
-const navItems = [
-  { id: "overview", label: "Overview" },
-  { id: "customers", label: "Customers", badge: "24" },
-  { id: "risk", label: "Risk", badge: "7" },
-  { id: "campaigns", label: "Campaigns" },
-  { id: "agent", label: "AI Agent" },
-];
+import personBankFirst from './assets/person_bank_first.png';
+import personWorkSmarter from './assets/person_work_smarter.png';
+import personNoHassle from './assets/person_no_hassle.png';
+import flexicardRender from './assets/flexicard_render.png';
+import heroPromoAiyah from './assets/hero_promo_aiyah.png';
 
-const kpis = [
-  { label: "Managed Deposits", value: "S$48.2M", trend: "+5.4% this week" },
-  { label: "Active Customers", value: "12,804", trend: "+186 today" },
-  { label: "Pending Reviews", value: "41", trend: "-8 from yesterday" },
-  { label: "Agent Resolution", value: "82%", trend: "+9% uplift" },
-];
+/* ========================================
+   GXS Bank Clone — Main App Component
+   ======================================== */
 
-const portfolioEvents = [
-  {
-    title: "Travel spend pattern detected",
-    detail: "Card transactions increased 3x in 9 days. FX card offer triggered.",
-    time: "2h ago",
-  },
-  {
-    title: "Salary credit matched",
-    detail: "Income consistency score now qualifies for smart-credit pre-check.",
-    time: "4h ago",
-  },
-  {
-    title: "Savings goal reached",
-    detail: "Round-up behavior hit target. Auto-invest education flow suggested.",
-    time: "8h ago",
-  },
-];
+// Intersection Observer hook for scroll animations
+function useInView(options = {}) {
+  const ref = useRef(null);
+  const [isVisible, setIsVisible] = useState(false);
 
-const queueItems = [
-  {
-    customer: "Alicia Tan",
-    request: "KYC refresh and document mismatch",
-    amount: "S$120K",
-    priority: "High",
-  },
-  {
-    customer: "Harith Ismail",
-    request: "Unusual transfer behavior",
-    amount: "S$21K",
-    priority: "High",
-  },
-  {
-    customer: "Darren Lim",
-    request: "Card dispute follow-up",
-    amount: "S$3.2K",
-    priority: "Medium",
-  },
-  {
-    customer: "Jia En Ong",
-    request: "Account recovery verification",
-    amount: "S$0.9K",
-    priority: "Low",
-  },
-];
-
-const campaignIdeas = [
-  {
-    title: "Micro-saving habit nudge",
-    body: "Target users with stable inflow and low transfer-out ratio for 14 days.",
-    tag: "AI Suggested",
-  },
-  {
-    title: "Smart card switch pitch",
-    body: "Recommend no-FX card to users with repeated travel merchant activity.",
-    tag: "Live Segment",
-  },
-  {
-    title: "Retention concierge callback",
-    body: "Escalate high-balance users after two unresolved support interactions.",
-    tag: "Priority",
-  },
-];
-
-const initialChat = [
-  {
-    role: "agent",
-    author: "GXS Copilot",
-    time: "09:41",
-    text: "Morning brief: 7 high-risk profiles need review. I prepared a ranked queue.",
-  },
-  {
-    role: "partner",
-    author: "Relationship Lead",
-    time: "09:43",
-    text: "Prioritize profiles with transfer velocity spikes and low KYC confidence.",
-  },
-  {
-    role: "agent",
-    author: "GXS Copilot",
-    time: "09:44",
-    text: "Done. I flagged Alicia Tan and Harith Ismail, and drafted customer-safe outreach.",
-  },
-];
-
-const quickActions = [
-  "Draft outreach for Alicia Tan",
-  "Summarize top risk drivers",
-  "Create compliance handoff note",
-];
-
-function App() {
-  const [activeTab, setActiveTab] = useState("overview");
-  const [draft, setDraft] = useState("");
-  const [messages, setMessages] = useState(initialChat);
-
-  const highPriorityCount = useMemo(
-    () => queueItems.filter((item) => item.priority === "High").length,
-    [],
-  );
-
-  const handleSend = (event) => {
-    event.preventDefault();
-    const cleaned = draft.trim();
-    if (!cleaned) {
-      return;
-    }
-
-    const responsePreview = cleaned.length > 60 ? `${cleaned.slice(0, 60)}...` : cleaned;
-
-    setMessages((current) => [
-      ...current,
-      {
-        role: "partner",
-        author: "You",
-        time: "Now",
-        text: cleaned,
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+        }
       },
-      {
-        role: "agent",
-        author: "GXS Copilot",
-        time: "Now",
-        text: `Acknowledged. I can execute next actions for "${responsePreview}" with compliance-safe language.`,
-      },
-    ]);
+      { threshold: 0.15, ...options }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
 
-    setDraft("");
-  };
+  return [ref, isVisible];
+}
+
+// ======= HEADER =======
+function Header() {
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 50);
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   return (
-    <div className="partner-page">
-      <div className="aurora aurora-one" />
-      <div className="aurora aurora-two" />
-
-      <div className="app-frame">
-        <aside className="sidebar panel reveal">
-          <div className="brand-block">
-            <span className="brand-led" aria-hidden="true" />
-            <div>
-              <p className="brand-eyebrow">GXS Partner</p>
-              <h1>Agent Workspace</h1>
-            </div>
-          </div>
-
-          <nav className="rail-nav" aria-label="Partner modules">
-            {navItems.map((item) => (
-              <button
-                type="button"
-                key={item.id}
-                className={item.id === activeTab ? "rail-link active" : "rail-link"}
-                onClick={() => setActiveTab(item.id)}
-              >
-                <span>{item.label}</span>
-                {item.badge ? <span className="nav-badge">{item.badge}</span> : null}
-              </button>
-            ))}
-          </nav>
-
-          <div className="sidebar-card">
-            <p className="sidebar-kicker">Live alerts</p>
-            <h3>{highPriorityCount} high-priority reviews</h3>
-            <p>Customer identity and transfer-risk checks are waiting for your approval.</p>
-            <button type="button">Open verification queue</button>
-          </div>
-        </aside>
-
-        <main className="workspace">
-          <header className="workspace-top panel reveal">
-            <div>
-              <p className="kicker">GXS Banking Partner Console</p>
-              <h2>Customer desk, risk operations, and AI copilot</h2>
-            </div>
-            <div className="top-actions">
-              <span className="status-pill">Sandbox mode</span>
-              <button type="button">Sync accounts</button>
-            </div>
-          </header>
-
-          <section className="kpi-grid">
-            {kpis.map((item) => (
-              <article className="panel reveal metric-card" key={item.label}>
-                <p>{item.label}</p>
-                <h3>{item.value}</h3>
-                <span>{item.trend}</span>
-              </article>
-            ))}
-          </section>
-
-          <section className="main-grid">
-            <article className="panel reveal customer-panel">
-              <header className="section-head">
-                <div>
-                  <p className="kicker">Customer 360</p>
-                  <h3>Primary profile: Alicia Tan</h3>
-                </div>
-                <button type="button">View full profile</button>
-              </header>
-
-              <div className="customer-identity">
-                <div>
-                  <span>Segment</span>
-                  <strong>Affluent Digital Saver</strong>
-                </div>
-                <div>
-                  <span>Portfolio value</span>
-                  <strong>S$284,900</strong>
-                </div>
-                <div>
-                  <span>Risk score</span>
-                  <strong>62 / 100</strong>
-                </div>
-              </div>
-
-              <ul className="event-list">
-                {portfolioEvents.map((event) => (
-                  <li key={event.title}>
-                    <div>
-                      <h4>{event.title}</h4>
-                      <p>{event.detail}</p>
-                    </div>
-                    <span>{event.time}</span>
-                  </li>
-                ))}
-              </ul>
-            </article>
-
-            <article className="panel reveal chat-panel">
-              <header className="section-head">
-                <div>
-                  <p className="kicker">AI Agent Desk</p>
-                  <h3>GXS Copilot live conversation</h3>
-                </div>
-                <button type="button">Open full thread</button>
-              </header>
-
-              <div className="chat-stream" aria-live="polite">
-                {messages.map((message, index) => (
-                  <article className={`chat-bubble ${message.role}`} key={`${message.author}-${index}`}>
-                    <p className="chat-author">
-                      {message.author}
-                      <span>{message.time}</span>
-                    </p>
-                    <p>{message.text}</p>
-                  </article>
-                ))}
-              </div>
-
-              <form className="chat-composer" onSubmit={handleSend}>
-                <input
-                  type="text"
-                  value={draft}
-                  onChange={(event) => setDraft(event.target.value)}
-                  placeholder="Ask agent to draft, summarize, or prioritize..."
-                  aria-label="Agent prompt"
-                />
-                <button type="submit">Send</button>
-              </form>
-
-              <div className="action-chips">
-                {quickActions.map((action) => (
-                  <button type="button" key={action} onClick={() => setDraft(action)}>
-                    {action}
-                  </button>
-                ))}
-              </div>
-            </article>
-          </section>
-
-          <section className="queue-grid">
-            <article className="panel reveal queue-panel">
-              <header className="section-head">
-                <div>
-                  <p className="kicker">Verification Queue</p>
-                  <h3>Pending customer checks</h3>
-                </div>
-                <button type="button">Export list</button>
-              </header>
-
-              <div className="queue-list">
-                {queueItems.map((item) => (
-                  <article className="queue-row" key={`${item.customer}-${item.request}`}>
-                    <div>
-                      <h4>{item.customer}</h4>
-                      <p>{item.request}</p>
-                    </div>
-                    <strong>{item.amount}</strong>
-                    <span className={`priority ${item.priority.toLowerCase()}`}>{item.priority}</span>
-                  </article>
-                ))}
-              </div>
-            </article>
-
-            <article className="panel reveal campaign-panel">
-              <header className="section-head">
-                <div>
-                  <p className="kicker">Growth Engine</p>
-                  <h3>AI-assisted campaign ideas</h3>
-                </div>
-                <button type="button">Launch workflow</button>
-              </header>
-
-              <div className="campaign-list">
-                {campaignIdeas.map((idea) => (
-                  <article key={idea.title}>
-                    <p className="tag">{idea.tag}</p>
-                    <h4>{idea.title}</h4>
-                    <p>{idea.body}</p>
-                  </article>
-                ))}
-              </div>
-            </article>
-          </section>
-        </main>
+    <header className="header" style={scrolled ? { background: 'rgba(12,6,23,0.97)' } : {}}>
+      <div className="header-inner">
+        <a href="#" className="logo" id="gxs-logo">
+          <span className="logo-g">G</span>
+          <span className="logo-x" style={{ fontSize: '22px' }}>x</span>
+          <span className="logo-s">S</span>
+        </a>
+        <nav>
+          <ul className="nav-links">
+            <li><a href="#" className="nav-link" id="nav-home">Home</a></li>
+            <li><a href="#savings" className="nav-link" id="nav-account">Account</a></li>
+            <li><a href="#flexicard" className="nav-link" id="nav-cards">Cards</a></li>
+            <li><a href="#flexiloan" className="nav-link" id="nav-loans">Loans</a></li>
+            <li><a href="#" className="nav-link" id="nav-invest">Invest</a></li>
+            <li><a href="#" className="nav-link" id="nav-help">Help Centre</a></li>
+            <li><a href="#" className="nav-link" id="nav-betterzine">Betterzine</a></li>
+            <li><a href="#" className="nav-link" id="nav-business">Business Banking</a></li>
+          </ul>
+        </nav>
+        <button className="btn-download-nav" id="btn-download-header">Download</button>
       </div>
+      <div className="gradient-line" />
+    </header>
+  );
+}
+
+// ======= HERO =======
+function HeroSection() {
+  const [ref, visible] = useInView();
+
+  return (
+    <section className="hero-section" id="hero">
+      <div className="hero-inner" ref={ref}>
+        <div className={`hero-content ${visible ? 'fade-in-left visible' : 'fade-in-left'}`}>
+          <h1>For the <em>aiyah</em><br />moments in life</h1>
+          <p>
+            Plot twist, no problem! Get fast cash at our lowest rates from 1.08% p.a.
+            (EIR 2.02% p.a.), with no fees and interest rebate of 1.8% in cashback.
+          </p>
+          <p style={{ fontSize: '15px', color: '#b8a9cc', marginBottom: '32px' }}>
+            Sign up for a GXS FlexiLoan account, take an Instalment Loan of min. S$10,000
+            and name your loan "AIYAH" to be eligible.
+          </p>
+          <button className="btn-primary" id="btn-hero-apply">Apply now</button>
+          <div className="hero-promo-tag" style={{ marginTop: '24px' }}>
+            For promotion terms & conditions, visit here.
+          </div>
+          <p style={{ fontSize: '12px', color: 'rgba(184,169,204,0.6)', lineHeight: 1.5 }}>
+            Offer is valid from 19 January to 31 March 2026. Min. loan tenure of 12 months required.
+            Ensure you have a GXS Savings Account open by 31 March 2026 to receive your cashback.
+          </p>
+        </div>
+        <div className={`hero-image-container ${visible ? 'fade-in-right visible' : 'fade-in-right'}`}>
+          <img src={heroPromoAiyah} alt="GXS FlexiLoan Aiyah Promotion" className="hero-image" />
+          <div className="hero-rate-badge">
+            <span className="label">From</span>
+            <div className="rate">1.08% p.a.</div>
+            <span className="subrate">(EIR 2.02% p.a.)</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ======= VALUES SECTION =======
+function ValuesSection() {
+  const [ref, visible] = useInView();
+
+  const values = [
+    {
+      image: personBankFirst,
+      title: 'A bank\nthat puts\nyou first.',
+      desc: 'We make the good stuff like credit, interest & rewards accessible to everyone, and take away the fees.',
+    },
+    {
+      image: personWorkSmarter,
+      title: 'Work\nsmarter.\nNot harder.',
+      desc: 'We use technology to create smart solutions that help you do more with your money. And keep it secure.',
+    },
+    {
+      image: personNoHassle,
+      title: 'No Queues.\nNo Branches.\nNo Hassle.',
+      desc: 'Get all your banking done in just a few taps.',
+    },
+  ];
+
+  return (
+    <section className="values-section" id="values">
+      <div className="values-inner" ref={ref}>
+        {values.map((val, i) => (
+          <div
+            key={i}
+            className={`value-card ${visible ? 'fade-in visible' : 'fade-in'}`}
+            style={{ transitionDelay: `${i * 0.2}s` }}
+          >
+            <div className="value-image-container">
+              <img src={val.image} alt={val.title} className="value-image" />
+            </div>
+            <h3 style={{ whiteSpace: 'pre-line' }}>{val.title}</h3>
+            <p>{val.desc}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ======= BETTER SECTION =======
+function BetterSection() {
+  const labels = ['UX', 'service', 'security', 'savings', 'rewards', 'payments', 'interest', 'insights', 'control', 'banking'];
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIndex((prev) => (prev + 1) % labels.length);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <section className="better-section" id="better">
+      <div className="better-inner">
+        <div className="better-word">
+          better
+          <span className="better-label" key={index}>
+            {labels[index]}
+          </span>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ======= SAVINGS SECTION =======
+function SavingsSection() {
+  const [ref, visible] = useInView();
+
+  return (
+    <section className="savings-section" id="savings">
+      <div className="savings-inner" ref={ref}>
+        <div className={visible ? 'fade-in visible' : 'fade-in'}>
+          <span className="section-badge">GXS Savings Account</span>
+          <h2>Daily interest.<br />Daily rewards.</h2>
+          <p>
+            See your money grow with daily interest credited to your account
+            and track your transactions in one place with GXS Savings Account.
+          </p>
+          <button className="btn-outline" id="btn-savings">GXS Savings Account</button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ======= FLEXICARD SECTION =======
+function FlexiCardSection() {
+  const [ref, visible] = useInView();
+
+  return (
+    <section className="flexicard-section" id="flexicard">
+      <div className="flexicard-inner" ref={ref}>
+        <div className={`flexicard-content ${visible ? 'fade-in-left visible' : 'fade-in-left'}`}>
+          <span className="section-badge">GXS FlexiCard</span>
+          <h2>The starter<br />credit card.</h2>
+          <p>
+            A no-interest credit card with unlimited instant rewards
+            and no minimum income requirement.
+          </p>
+          <button className="btn-outline" id="btn-flexicard">GXS FlexiCard</button>
+          <p className="note">Please ensure you have the latest version of the GXS Bank app.</p>
+        </div>
+        <div className={`flexicard-image-container ${visible ? 'fade-in-right visible' : 'fade-in-right'}`}>
+          <img src={flexicardRender} alt="GXS FlexiCard" className="flexicard-image" />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ======= FLEXILOAN SECTION =======
+function FlexiLoanSection() {
+  const [ref, visible] = useInView();
+
+  return (
+    <section className="flexiloan-section" id="flexiloan">
+      <div className="flexiloan-inner" ref={ref}>
+        <div className={`flexiloan-content ${visible ? 'fade-in-left visible' : 'fade-in-left'}`}>
+          <span className="section-badge">Loans</span>
+          <h2>Instant cash<br />with GXS<br />FlexiLoan.</h2>
+          <p>
+            Get an instant cash boost with GXS FlexiLoan. Enjoy 0% interest rate with
+            Balance transfer or no additional fees with our Instalment loan.
+          </p>
+          <button className="btn-outline" id="btn-flexiloan">GXS FlexiLoan</button>
+        </div>
+        <div className={`flex-text-container ${visible ? 'fade-in-right visible' : 'fade-in-right'}`}>
+          <span className="flex-giant-text">FLEX</span>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ======= CTA SECTION =======
+function CTASection() {
+  const [ref, visible] = useInView();
+
+  return (
+    <section className="cta-section" id="cta">
+      <div className="cta-inner" ref={ref}>
+        <div className={visible ? 'fade-in visible' : 'fade-in'}>
+          <p className="cta-ready">READY?</p>
+          <h2>Banking made better.<br />Sign up now on the GXS app.</h2>
+          <p>Ready to join the fun? Hit the button below to get started.</p>
+          <button className="btn-gradient" id="btn-cta-download">Download GXS Bank app</button>
+        </div>
+
+        <div className={`cta-help ${visible ? 'fade-in visible' : 'fade-in'}`} style={{ transitionDelay: '0.3s' }}>
+          <h3>Got questions? We got answers.</h3>
+          <p>
+            Visit our Help Centre for answers to commonly asked questions
+            or chat with us through the app. We're online all day, every day.
+          </p>
+          <a href="#" id="link-help-centre">Find help here →</a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ======= FOOTER =======
+function Footer() {
+  return (
+    <footer className="footer" id="footer">
+      <div className="footer-inner">
+        <div className="footer-top">
+          <div className="footer-brand">
+            <h3>A new era of digital banking is here.</h3>
+            <p>
+              Banking is just banking, right? Well, we think it can be made better so you can
+              do more with your money. More than you've ever imagined.
+              And the cherry on top? It's accessible from both your Grab and Singtel apps.
+            </p>
+          </div>
+          <div className="footer-column">
+            <h4>About GXS</h4>
+            <ul>
+              <li><a href="#">About us</a></li>
+              <li><a href="#">Newsroom</a></li>
+              <li><a href="#">Leadership</a></li>
+              <li><a href="#">Corporate governance</a></li>
+              <li><a href="#">Refer and earn</a></li>
+              <li><a href="#">Travel with GXS</a></li>
+              <li><a href="#">GXS Odyssey</a></li>
+            </ul>
+          </div>
+          <div className="footer-column">
+            <h4>Support</h4>
+            <ul>
+              <li><a href="#">Security tips</a></li>
+              <li><a href="#">Help Centre</a></li>
+              <li><a href="#">Contact us</a></li>
+            </ul>
+          </div>
+          <div className="footer-column">
+            <h4>Important Info</h4>
+            <ul>
+              <li><a href="#">Terms and conditions</a></li>
+              <li><a href="#">Data privacy policy</a></li>
+              <li><a href="#">Terms of use</a></li>
+              <li><a href="#">Acceptable use policy</a></li>
+              <li><a href="#">Whistleblowing policy</a></li>
+              <li><a href="#">Notices</a></li>
+              <li><a href="#">E-Payments Guidelines</a></li>
+              <li><a href="#">Third party policy</a></li>
+            </ul>
+          </div>
+        </div>
+        <div className="footer-bottom">
+          <p className="footer-notice">
+            Insured up to S$100K by SDIC. Terms apply. This advertisement has not been
+            reviewed by the Monetary Authority of Singapore.
+          </p>
+          <div className="footer-sdic">
+            🛡️ SDIC Insured
+          </div>
+        </div>
+        <p className="footer-copyright">
+          © {new Date().getFullYear()} GXS Bank Pte. Ltd. All rights reserved.
+        </p>
+      </div>
+    </footer>
+  );
+}
+
+// ======= COOKIE BANNER =======
+function CookieBanner() {
+  const [dismissed, setDismissed] = useState(false);
+
+  if (dismissed) return null;
+
+  return (
+    <div className="cookie-banner" id="cookie-banner">
+      <button className="cookie-close" onClick={() => setDismissed(true)} id="btn-cookie-close">✕</button>
+      <p>
+        We use <a href="#">cookies</a> to operate and track the use of our site,
+        and improve your experience with GXS Bank.
+      </p>
     </div>
   );
 }
 
-export default App;
+// ======= MAIN APP =======
+export default function App() {
+  return (
+    <>
+      <Header />
+      <main>
+        <HeroSection />
+        <ValuesSection />
+        <BetterSection />
+        <SavingsSection />
+        <FlexiCardSection />
+        <FlexiLoanSection />
+        <CTASection />
+      </main>
+      <Footer />
+      <CookieBanner />
+    </>
+  );
+}
