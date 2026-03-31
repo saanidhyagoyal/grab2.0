@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from './context/AuthContext';
 
 import personBankFirst from './assets/person_bank_first.png';
 import personWorkSmarter from './assets/person_work_smarter.png';
@@ -34,6 +36,9 @@ function useInView(options = {}) {
 // ======= HEADER =======
 function Header() {
   const [scrolled, setScrolled] = useState(false);
+  let authState = { isAuthenticated: false, isEmployee: false };
+  try { authState = useAuth(); } catch(e) {}
+  const { isAuthenticated, isEmployee } = authState;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);
@@ -44,11 +49,11 @@ function Header() {
   return (
     <header className="header" style={scrolled ? { background: 'rgba(12,6,23,0.97)' } : {}}>
       <div className="header-inner">
-        <a href="#" className="logo" id="gxs-logo">
+        <Link to="/" className="logo" id="gxs-logo">
           <span className="logo-g">G</span>
           <span className="logo-x" style={{ fontSize: '22px' }}>x</span>
           <span className="logo-s">S</span>
-        </a>
+        </Link>
         <nav>
           <ul className="nav-links">
             <li><a href="#" className="nav-link" id="nav-home">Home</a></li>
@@ -61,7 +66,11 @@ function Header() {
             <li><a href="#" className="nav-link" id="nav-business">Business Banking</a></li>
           </ul>
         </nav>
-        <button className="btn-download-nav" id="btn-download-header">Download</button>
+        {isAuthenticated ? (
+          <Link to={isEmployee ? '/employee/dashboard' : '/dashboard'} className="btn-download-nav" id="btn-dashboard-header">Dashboard</Link>
+        ) : (
+          <Link to="/login" className="btn-download-nav" id="btn-login-header">Log In</Link>
+        )}
       </div>
       <div className="gradient-line" />
     </header>
