@@ -26,22 +26,35 @@ public class CardService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
+        if (user.getKycStatus() != com.gxs.bank.model.User.KycStatus.VERIFIED) {
+            throw new BadRequestException("KYC must be verified before applying for a card");
+        }
+
         Card.CardType cardType;
         try {
             cardType = Card.CardType.valueOf(request.getCardType().toUpperCase());
         } catch (IllegalArgumentException e) {
-            throw new BadRequestException("Invalid card type. Must be DEBIT or FLEXI");
+            throw new BadRequestException("Invalid card type. Must be one of: DEBIT, CREDIT, PREPAID, FLEXI");
         }
 
-        BigDecimal creditLimit = cardType == Card.CardType.FLEXI
-                ? new BigDecimal("5000.00")
-                : BigDecimal.ZERO;
+        BigDecimal creditLimit = switch (cardType) {
+            case CREDIT -> new BigDecimal("200000.00");
+            case FLEXI -> new BigDecimal("5000.00");
+            case PREPAID -> new BigDecimal("50000.00");
+            default -> BigDecimal.ZERO;
+        };
+
+        // Auto-assign card network
+        Card.CardNetwork network = (cardType == Card.CardType.CREDIT || cardType == Card.CardType.FLEXI)
+                ? Card.CardNetwork.MASTERCARD : Card.CardNetwork.VISA;
 
         Card card = Card.builder()
                 .user(user)
                 .cardNumberLast4(String.format("%04d", new Random().nextInt(10000)))
+                .cardHolderName(user.getFullName().toUpperCase())
                 .cardType(cardType)
-                .status(Card.Status.ACTIVE)
+                .cardNetwork(network)
+                .status(Card.Status.PENDING)
                 .creditLimit(creditLimit)
                 .currentBalance(BigDecimal.ZERO)
                 .cashbackEarned(BigDecimal.ZERO)
@@ -71,6 +84,20 @@ public class CardService {
             card.setStatus(Card.Status.ACTIVE);
         } else {
             throw new BadRequestException("Cannot toggle freeze on a cancelled card");
+        }
+        return cardRepository.save(card);
+    }
+
+    public Card updateSettings(UUID cardId, UUID userId, java.util.Map<String, Object> settings) {
+        Card card = getCard(cardId, userId);
+        if (settings.containsKey("isInternationalEnabled")) {
+            card.setIsInternationalEnabled(Boolean.parseBoolean(settings.get("isInternationalEnabled").toString()));
+        }
+        if (settings.containsKey("isOnlineEnabled")) {
+            card.setIsOnlineEnabled(Boolean.parseBoolean(settings.get("isOnlineEnabled").toString()));
+        }
+        if (settings.containsKey("isContactlessEnabled")) {
+            card.setIsContactlessEnabled(Boolean.parseBoolean(settings.get("isContactlessEnabled").toString()));
         }
         return cardRepository.save(card);
     }

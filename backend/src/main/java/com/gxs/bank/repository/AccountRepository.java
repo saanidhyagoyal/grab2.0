@@ -12,4 +12,6 @@ public interface AccountRepository extends JpaRepository<SavingsAccount, UUID> {
     List<SavingsAccount> findByUserId(UUID userId);
     Optional<SavingsAccount> findByAccountNumber(String accountNumber);
     boolean existsByAccountNumber(String accountNumber);
+    List<SavingsAccount> findByUserIdAndAccountType(UUID userId, SavingsAccount.AccountType accountType);
+    List<SavingsAccount> findByStatus(SavingsAccount.Status status);
 }

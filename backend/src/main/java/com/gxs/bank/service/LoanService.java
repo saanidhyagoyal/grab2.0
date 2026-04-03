@@ -36,12 +36,18 @@ public class LoanService {
         try {
             loanType = Loan.LoanType.valueOf(request.getLoanType().toUpperCase());
         } catch (IllegalArgumentException e) {
-            throw new BadRequestException("Invalid loan type. Must be INSTALMENT or BALANCE_TRANSFER");
+            throw new BadRequestException("Invalid loan type. Must be one of: PERSONAL, HOME, VEHICLE, EDUCATION, GOLD, BUSINESS, INSTALMENT, BALANCE_TRANSFER");
         }
 
-        BigDecimal interestRate = loanType == Loan.LoanType.BALANCE_TRANSFER
-                ? BigDecimal.ZERO
-                : new BigDecimal("1.08");
+        BigDecimal interestRate = switch (loanType) {
+            case BALANCE_TRANSFER -> BigDecimal.ZERO;
+            case HOME -> new BigDecimal("8.50");
+            case VEHICLE -> new BigDecimal("7.50");
+            case EDUCATION -> new BigDecimal("5.00");
+            case GOLD -> new BigDecimal("7.00");
+            case BUSINESS -> new BigDecimal("10.00");
+            default -> new BigDecimal("1.08"); // PERSONAL, INSTALMENT
+        };
 
         BigDecimal monthlyPayment = calculateMonthlyPayment(
                 request.getAmount(), interestRate, request.getTenureMonths());
@@ -55,7 +61,7 @@ public class LoanService {
                 .tenureMonths(request.getTenureMonths())
                 .loanName(request.getLoanName())
                 .monthlyPayment(monthlyPayment)
-                .status(Loan.Status.ACTIVE)
+                .status(Loan.Status.PENDING)
                 .build();
 
         return loanRepository.save(loan);

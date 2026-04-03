@@ -40,16 +40,22 @@ class ApiClient {
     }
 
     const res = await fetch(`${this.baseUrl}${path}`, config);
-    const data = await res.json();
+    let data = {};
+    try {
+      const text = await res.text();
+      data = text ? JSON.parse(text) : {};
+    } catch (e) {
+      data = { message: 'Invalid response format from server' };
+    }
 
     if (!res.ok) {
-      throw new Error(data.message || 'Something went wrong');
+      throw new Error(data.message || `Server error ${res.status}`);
     }
 
     return data;
   }
 
-  // Auth
+  // ─── Auth ───────────────────────────────────────────────────────────────────
   async register(userData) {
     const res = await this.request('POST', '/auth/register', userData);
     if (res.success && res.data) {
@@ -72,7 +78,7 @@ class ApiClient {
     return this.request('GET', '/auth/me');
   }
 
-  // Accounts
+  // ─── Accounts ───────────────────────────────────────────────────────────────
   async createAccount() {
     return this.request('POST', '/accounts');
   }
@@ -101,7 +107,12 @@ class ApiClient {
     return this.request('GET', `/accounts/${accountId}/transactions?page=${page}&size=${size}`);
   }
 
-  // Cards
+  // getMiniStatement = last 10 txns (same endpoint, small size)
+  async getMiniStatement(accountId) {
+    return this.request('GET', `/accounts/${accountId}/transactions?page=0&size=10`);
+  }
+
+  // ─── Cards ─────────────────────────────────────────────────────────────────
   async applyCard(cardType) {
     return this.request('POST', '/cards/apply', { cardType });
   }
@@ -114,7 +125,11 @@ class ApiClient {
     return this.request('PUT', `/cards/${cardId}/freeze`);
   }
 
-  // Loans
+  async updateCardSettings(cardId, settings) {
+    return this.request('PUT', `/cards/${cardId}/settings`, settings);
+  }
+
+  // ─── Loans ─────────────────────────────────────────────────────────────────
   async applyLoan(loanData) {
     return this.request('POST', '/loans/apply', loanData);
   }
@@ -131,12 +146,110 @@ class ApiClient {
     return this.request('GET', `/loans/calculate?amount=${amount}&rate=${rate}&tenureMonths=${tenureMonths}`);
   }
 
-  // Promotions
+  // ─── KYC ───────────────────────────────────────────────────────────────────
+  async submitKyc(documentType, documentNumber, fileUrl = 'mock-upload') {
+    return this.request('POST', '/kyc/submit', { documentType, documentNumber, fileUrl });
+  }
+
+  async getKycDocuments() {
+    return this.request('GET', '/kyc/documents');
+  }
+
+  // ─── Fixed Deposits ─────────────────────────────────────────────────────────
+  async createFD(fdData) {
+    // fdData: { sourceAccountId, principalAmount, interestRate, tenureMonths, autoRenew }
+    return this.request('POST', '/fd/create', fdData);
+  }
+
+  async getFDs() {
+    return this.request('GET', '/fd');
+  }
+
+  async breakFD(fdId) {
+    return this.request('POST', `/fd/${fdId}/break`);
+  }
+
+  // ─── Bills ─────────────────────────────────────────────────────────────────
+  async payBill(billData) {
+    return this.request('POST', '/bills/pay', billData);
+  }
+
+  async getBillHistory() {
+    return this.request('GET', '/bills/history');
+  }
+
+  async getBillers() {
+    return this.request('GET', '/bills/billers');
+  }
+
+  // ─── Beneficiaries ──────────────────────────────────────────────────────────
+  async addBeneficiary(beneficiary) {
+    return this.request('POST', '/beneficiaries', beneficiary);
+  }
+
+  async getBeneficiaries() {
+    return this.request('GET', '/beneficiaries');
+  }
+
+  async deleteBeneficiary(id) {
+    return this.request('DELETE', `/beneficiaries/${id}`);
+  }
+
+  // ─── Notifications ──────────────────────────────────────────────────────────
+  async getNotifications() {
+    return this.request('GET', '/notifications');
+  }
+
+  async getUnreadCount() {
+    return this.request('GET', '/notifications/unread-count');
+  }
+
+  async markNotificationRead(id) {
+    return this.request('PUT', `/notifications/${id}/read`);
+  }
+
+  async markAllNotificationsRead() {
+    // Mark all individually from the list — or use batch if available
+    const res = await this.getNotifications();
+    const unread = (res.data || []).filter(n => !n.isRead);
+    await Promise.all(unread.map(n => this.markNotificationRead(n.id)));
+    return { success: true };
+  }
+
+  // ─── Admin / Maker-Checker ──────────────────────────────────────────────────
+  async getPendingCards() {
+    return this.request('GET', '/admin/pending-cards');
+  }
+
+  async getPendingLoans() {
+    return this.request('GET', '/admin/pending-loans');
+  }
+
+  async approveCard(id) {
+    return this.request('POST', `/admin/cards/${id}/approve`);
+  }
+
+  async rejectCard(id) {
+    return this.request('POST', `/admin/cards/${id}/reject`);
+  }
+
+  async approveLoan(id) {
+    return this.request('POST', `/admin/loans/${id}/approve`);
+  }
+
+  async rejectLoan(id) {
+    return this.request('POST', `/admin/loans/${id}/reject`);
+  }
+
+  async getAuditLogs() {
+    return this.request('GET', '/admin/audit-logs');
+  }
+
+  // ─── Promotions / Contact ───────────────────────────────────────────────────
   async getPromotions() {
     return this.request('GET', '/promotions');
   }
 
-  // Contact
   async submitContact(contactData) {
     return this.request('POST', '/contact', contactData);
   }

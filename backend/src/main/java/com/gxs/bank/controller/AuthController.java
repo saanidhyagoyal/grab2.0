@@ -38,15 +38,32 @@ public class AuthController {
 
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getProfile(@AuthenticationPrincipal User user) {
+        // Re-fetch from DB to get the absolute latest state (e.g. after KYC approval)
+        User fresh = authService.getUserById(user.getId());
         Map<String, Object> profile = new HashMap<>();
-        profile.put("id", user.getId());
-        profile.put("fullName", user.getFullName());
-        profile.put("email", user.getEmail());
-        profile.put("phone", user.getPhone());
-        profile.put("role", user.getRole().name());
-        profile.put("employeeId", user.getEmployeeId());
-        profile.put("department", user.getDepartment());
-        profile.put("createdAt", user.getCreatedAt());
+        profile.put("id", fresh.getId());
+        profile.put("userId", fresh.getId());
+        profile.put("fullName", fresh.getFullName());
+        profile.put("email", fresh.getEmail());
+        profile.put("phone", fresh.getPhone());
+        profile.put("role", fresh.getRole().name());
+        profile.put("employeeId", fresh.getEmployeeId());
+        profile.put("department", fresh.getDepartment());
+        profile.put("kycStatus", fresh.getKycStatus() != null ? fresh.getKycStatus().name() : "UNVERIFIED");
+        profile.put("employeeRole", fresh.getEmployeeRole() != null ? fresh.getEmployeeRole().name() : null);
+        profile.put("onboardingStatus", fresh.getOnboardingStatus() != null ? fresh.getOnboardingStatus().name() : null);
+        profile.put("createdAt", fresh.getCreatedAt());
+        // Personal details for profile page
+        profile.put("dateOfBirth", fresh.getDateOfBirth());
+        profile.put("gender", fresh.getGender() != null ? fresh.getGender().name() : null);
+        profile.put("address", fresh.getAddress());
+        profile.put("city", fresh.getCity());
+        profile.put("state", fresh.getState());
+        profile.put("pincode", fresh.getPincode());
+        profile.put("panNumber", fresh.getPanNumber());
+        profile.put("aadhaarLast4", fresh.getAadhaarLast4());
+        profile.put("nomineeName", fresh.getNomineeName());
+        profile.put("nomineeRelation", fresh.getNomineeRelation());
         return ResponseEntity.ok(ApiResponse.ok(profile));
     }
 }

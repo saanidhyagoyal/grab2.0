@@ -16,7 +16,7 @@ public class LoanApplyRequest {
 
     @NotNull(message = "Tenure is required")
     @Min(value = 3, message = "Minimum tenure is 3 months")
-    @Max(value = 60, message = "Maximum tenure is 60 months")
+    @Max(value = 360, message = "Maximum tenure is 360 months")
     private Integer tenureMonths;
 
     private String loanName; // e.g. "AIYAH", "IKEA"

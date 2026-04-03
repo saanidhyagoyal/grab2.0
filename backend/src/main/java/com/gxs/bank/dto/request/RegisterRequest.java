@@ -26,4 +26,5 @@ public class RegisterRequest {
     // Employee-specific fields (optional)
     private String employeeId;
     private String department;
+    private String employeeRole; // "MAKER", "CHECKER", "ADMIN"
 }

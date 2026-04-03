@@ -9,4 +9,7 @@ import java.util.UUID;
 @Repository
 public interface CardRepository extends JpaRepository<Card, UUID> {
     List<Card> findByUserId(UUID userId);
+    List<Card> findByStatus(Card.Status status);
+    List<Card> findByUserIdAndStatus(UUID userId, Card.Status status);
+    long countByStatus(Card.Status status);
 }

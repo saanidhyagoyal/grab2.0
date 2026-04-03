@@ -34,28 +34,28 @@ public class AuthService {
             throw new BadRequestException("Invalid role. Must be CUSTOMER or EMPLOYEE");
         }
 
+        User.EmployeeRole employeeRole = null;
+        if (role == User.Role.EMPLOYEE && request.getEmployeeRole() != null) {
+            try {
+                employeeRole = User.EmployeeRole.valueOf(request.getEmployeeRole().toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new BadRequestException("Invalid employee role. Must be MAKER, CHECKER, or ADMIN");
+            }
+        }
+
         User user = User.builder()
                 .fullName(request.getFullName())
                 .email(request.getEmail())
                 .phone(request.getPhone())
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
                 .role(role)
+                .employeeRole(employeeRole)
                 .employeeId(request.getEmployeeId())
                 .department(request.getDepartment())
                 .build();
 
         user = userRepository.save(user);
-
-        String token = tokenProvider.generateToken(user.getId(), user.getEmail(), user.getRole().name());
-
-        return AuthResponse.builder()
-                .token(token)
-                .type("Bearer")
-                .userId(user.getId())
-                .fullName(user.getFullName())
-                .email(user.getEmail())
-                .role(user.getRole().name())
-                .build();
+        return buildAuthResponse(user);
     }
 
     public AuthResponse login(LoginRequest request) {
@@ -66,6 +66,15 @@ public class AuthService {
             throw new BadRequestException("Invalid email or password");
         }
 
+        return buildAuthResponse(user);
+    }
+
+    public User getUserById(UUID userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    }
+
+    private AuthResponse buildAuthResponse(User user) {
         String token = tokenProvider.generateToken(user.getId(), user.getEmail(), user.getRole().name());
 
         return AuthResponse.builder()
@@ -74,12 +83,13 @@ public class AuthService {
                 .userId(user.getId())
                 .fullName(user.getFullName())
                 .email(user.getEmail())
+                .phone(user.getPhone())
                 .role(user.getRole().name())
+                .kycStatus(user.getKycStatus() != null ? user.getKycStatus().name() : "UNVERIFIED")
+                .employeeRole(user.getEmployeeRole() != null ? user.getEmployeeRole().name() : null)
+                .department(user.getDepartment())
+                .employeeId(user.getEmployeeId())
+                .onboardingStatus(user.getOnboardingStatus() != null ? user.getOnboardingStatus().name() : null)
                 .build();
-    }
-
-    public User getUserById(UUID userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 }

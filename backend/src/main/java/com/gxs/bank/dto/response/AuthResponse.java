@@ -10,5 +10,11 @@ public class AuthResponse {
     private UUID userId;
     private String fullName;
     private String email;
+    private String phone;
     private String role;
+    private String kycStatus;
+    private String employeeRole;
+    private String department;
+    private String employeeId;
+    private String onboardingStatus;
 }

@@ -13,6 +13,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -28,7 +29,7 @@ public class CardController {
             @Valid @RequestBody CardApplyRequest request) {
         Card card = cardService.applyForCard(user.getId(), request);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.ok("Card application approved", card));
+                .body(ApiResponse.ok("Card application submitted for approval", card));
     }
 
     @GetMapping
@@ -49,5 +50,14 @@ public class CardController {
             @PathVariable UUID id, @AuthenticationPrincipal User user) {
         Card card = cardService.toggleFreeze(id, user.getId());
         return ResponseEntity.ok(ApiResponse.ok("Card status updated", card));
+    }
+
+    @PutMapping("/{id}/settings")
+    public ResponseEntity<ApiResponse<Card>> updateSettings(
+            @PathVariable UUID id,
+            @AuthenticationPrincipal User user,
+            @RequestBody Map<String, Object> settings) {
+        Card card = cardService.updateSettings(id, user.getId(), settings);
+        return ResponseEntity.ok(ApiResponse.ok("Card settings updated", card));
     }
 }
