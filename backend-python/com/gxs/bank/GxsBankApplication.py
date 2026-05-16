@@ -1,3 +1,8 @@
+import asyncio
+
+from dotenv import load_dotenv
+load_dotenv()  # load .env before anything else
+
 from fastapi import FastAPI
 
 from com.gxs.bank.config.CorsConfig import configure_cors
@@ -9,6 +14,7 @@ from com.gxs.bank.controller.AuthController import router as auth_router
 from com.gxs.bank.controller.BeneficiaryController import router as beneficiary_router
 from com.gxs.bank.controller.BillPaymentController import router as bill_router
 from com.gxs.bank.controller.CardController import router as card_router
+from com.gxs.bank.controller.AgentController import router as agent_router
 from com.gxs.bank.controller.ContactController import router as contact_router
 from com.gxs.bank.controller.FixedDepositController import router as fd_router
 from com.gxs.bank.controller.KycController import router as kyc_router
@@ -32,6 +38,7 @@ from com.gxs.bank.model import SavingsAccount  # noqa: F401
 from com.gxs.bank.model import Transaction  # noqa: F401
 from com.gxs.bank.model import UpiId  # noqa: F401
 from com.gxs.bank.model import User  # noqa: F401
+from com.gxs.bank.model import AgentReasoningLog  # noqa: F401
 
 
 app = FastAPI(title="gxs-bank")
@@ -50,6 +57,7 @@ app.include_router(notification_router)
 app.include_router(promotion_router)
 app.include_router(contact_router)
 app.include_router(admin_router)
+app.include_router(agent_router)
 
 
 @app.on_event("startup")
@@ -60,6 +68,18 @@ def on_startup():
         seed_data(db)
     finally:
         db.close()
+    # Start background OTP-expiry sweep (checks every 30 s)
+    asyncio.get_event_loop().create_task(_otp_sweep_loop())
+
+
+async def _otp_sweep_loop():
+    from com.gxs.bank.agents.otp_lock_service import check_expired_otps
+    while True:
+        await asyncio.sleep(30)
+        locked = check_expired_otps()
+        if locked:
+            import logging
+            logging.getLogger("otp_lock").warning("Auto-locked accounts (OTP timeout): %s", locked)
 
 
 def main():

@@ -11,14 +11,16 @@ export function AuthProvider({ children }) {
     try {
       const res = await api.getProfile();
       if (res.data) {
-        const updatedUser = { ...user, ...res.data };
-        setUser(updatedUser);
-        api.setUser(updatedUser);
+        setUser(prev => {
+          const updated = { ...prev, ...res.data };
+          api.setUser(updated);
+          return updated;
+        });
       }
     } catch (err) {
       console.error('Failed to refresh user profile:', err);
     }
-  }, [user]);
+  }, []);
 
   const login = async (email, password) => {
     const res = await api.login(email, password);

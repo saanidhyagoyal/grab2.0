@@ -49,6 +49,11 @@ class ApiClient {
     }
 
     if (!res.ok) {
+      if (res.status === 401) {
+        this.clearToken();
+        window.location.href = '/login';
+        return {};
+      }
       throw new Error(data.message || `Server error ${res.status}`);
     }
 
@@ -243,6 +248,117 @@ class ApiClient {
 
   async getAuditLogs() {
     return this.request('GET', '/admin/audit-logs');
+  }
+
+  // ─── AI Agents ──────────────────────────────────────────────────────────────
+  async getFinancialWellness() {
+    return this.request('GET', '/agents/financial-wellness');
+  }
+
+  async getNudges() {
+    return this.request('GET', '/agents/nudges');
+  }
+
+  async getCreditScore() {
+    return this.request('GET', '/agents/credit-score');
+  }
+
+  async getIncomePrediction() {
+    return this.request('GET', '/agents/income-prediction');
+  }
+
+  async getHealthScore() {
+    return this.request('GET', '/agents/health-score');
+  }
+
+  async getRepaymentConfig() {
+    return this.request('GET', '/agents/repayment-config');
+  }
+
+  async getFraudCheck(suspectAmount = 0) {
+    return this.request('POST', '/agents/fraud-check', { suspect_amount: suspectAmount });
+  }
+
+  async sendAgentChat(message) {
+    return this.request('POST', '/agents/chat', { message });
+  }
+
+  async getAutoExecutor() {
+    return this.request('GET', '/agents/auto-executor');
+  }
+
+  async sendOtp(phone) {
+    return this.request('POST', '/agents/send-otp', { phone });
+  }
+
+  async verifyOtp(otp) {
+    return this.request('POST', '/agents/verify-otp', { otp });
+  }
+
+  async getLockStatus() {
+    return this.request('GET', '/agents/lock-status');
+  }
+
+  async unlockAccount() {
+    return this.request('POST', '/agents/unlock');
+  }
+
+  async getGraphStatus() {
+    return this.request('GET', '/agents/graph-status');
+  }
+
+  async getLlmHealth() {
+    return this.request('GET', '/agents/llm-health');
+  }
+
+  async getAgentAuditLog(limit = 50) {
+    return this.request('GET', `/agents/audit-log?limit=${limit}`);
+  }
+
+  async getMemoryStatus() {
+    return this.request('GET', '/agents/memory-status');
+  }
+
+  async sendAdvisorChat(message, history = []) {
+    const res = await this.request('POST', '/agents/advisor-chat', { message, history });
+    const payload = res.data || {};
+
+    // Fast path: backend completed within its sync-wait window
+    if (payload.status === 'completed' && payload.result) {
+      return { data: payload.result };
+    }
+
+    // Slow path: backend queued the job — poll until done
+    const jobId = payload.job_id;
+    if (!jobId) {
+      // Fallback: maybe the backend returned the result directly (old format)
+      return { data: payload };
+    }
+
+    const maxAttempts = 60;
+    let attempt = 0;
+    while (attempt < maxAttempts) {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      const statusRes = await this.request('GET', `/agents/advisor-chat/${jobId}`);
+      const job = statusRes.data || {};
+
+      if (job.state === 'completed' || job.status === 'completed') {
+        return { data: job.result || {} };
+      }
+      if (job.state === 'failed' || job.status === 'failed') {
+        throw new Error(job.error || 'Advisor chat job failed');
+      }
+      attempt++;
+    }
+    throw new Error('Advisor chat response timeout');
+  }
+
+  async executeAgentAction(actionId, amount, tenureMonths = 12) {
+    return this.request('POST', '/agents/execute-action', {
+      action_id: actionId,
+      amount,
+      tenure_months: tenureMonths,
+    });
   }
 
   // ─── Promotions / Contact ───────────────────────────────────────────────────

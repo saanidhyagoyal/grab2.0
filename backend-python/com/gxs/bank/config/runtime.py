@@ -21,7 +21,7 @@ def _as_bool(value: Optional[str], default: bool) -> bool:
 def load_settings() -> Settings:
     raw_origins = os.getenv("APP_CORS_ALLOWED_ORIGINS", "http://localhost:5173,http://localhost:3000")
     return Settings(
-        database_url=os.getenv("DATABASE_URL", "sqlite:///:memory:"),
+        database_url=os.getenv("DATABASE_URL", "sqlite:///./gxs_bank.db"),
         jwt_secret=os.getenv(
             "APP_JWT_SECRET",
             "GxsBankSuperSecretKeyForJWT2026ThatIsLongEnoughForHS512Algorithm!!",

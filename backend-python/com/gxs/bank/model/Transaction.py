@@ -29,6 +29,8 @@ class Type(str, Enum):
     SALARY_CREDIT = "SALARY_CREDIT"
     FD_DEPOSIT = "FD_DEPOSIT"
     FD_MATURITY = "FD_MATURITY"
+    GRAB_PAYOUT = "GRAB_PAYOUT"
+    LOAN_MICRO_REPAYMENT = "LOAN_MICRO_REPAYMENT"
 
 
 class Channel(str, Enum):

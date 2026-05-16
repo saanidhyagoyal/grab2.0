@@ -82,6 +82,29 @@ class DataSeeder:
         self.createTxn(rahulAcc, Transaction.Type.POS_PURCHASE, "3800.00", "Swiggy - Food Order", Transaction.Channel.MOBILE, "548750.00")
         self.createTxn(rahulAcc, Transaction.Type.TRANSFER_IN, "5000.00", "Received from Priya Patel", Transaction.Channel.IMPS, "553750.00")
 
+        # ── Grab delivery payouts (realistic SG Grab driver income) ───────────
+        grab_payouts = [
+            ("28.50", "GrabFood Delivery - Tampines Hub"),
+            ("35.00", "GrabFood Delivery - Orchard Road"),
+            ("22.00", "GrabExpress Parcel - Bedok North"),
+            ("41.50", "GrabFood Delivery - Jurong East"),
+            ("18.00", "GrabMart Grocery Run - Clementi"),
+            ("33.00", "GrabFood Delivery - Toa Payoh"),
+            ("45.00", "GrabFood Delivery - Marina Bay"),
+            ("25.50", "GrabExpress Parcel - Woodlands"),
+            ("38.00", "GrabFood Delivery - Bukit Merah"),
+            ("29.00", "GrabFood Delivery - Ang Mo Kio"),
+            ("42.00", "GrabMart Grocery Run - Bishan"),
+            ("31.00", "GrabFood Delivery - Serangoon"),
+            ("19.50", "GrabExpress Parcel - Punggol"),
+            ("36.50", "GrabFood Delivery - Hougang"),
+            ("27.00", "GrabFood Delivery - Queenstown"),
+        ]
+        running_bal = Decimal("553750.00")
+        for amt_str, desc in grab_payouts:
+            running_bal += Decimal(amt_str)
+            self.createTxn(rahulAcc, Transaction.Type.CREDIT, amt_str, desc, Transaction.Channel.MOBILE, str(running_bal))
+
         self.createBeneficiary(rahul, "Sneha Sharma", "100010000003", "GXSB0000001", "GXS Bank", "Wife")
         self.createBeneficiary(rahul, "Priya Patel", "100010000007", "GXSB0000001", "GXS Bank", "Friend")
 

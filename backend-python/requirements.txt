@@ -7,3 +7,20 @@ pyjwt==2.10.1
 passlib[bcrypt]==1.7.4
 bcrypt==4.0.1
 python-dotenv==1.0.1
+python-multipart==0.0.20
+numpy==1.26.4
+
+# ── AI Agent dependencies (optional — app works without these) ──────────────
+# NOTE: crewai requires Python 3.10–3.13. On Python 3.14+ only fallback mode runs.
+# For full multi-agent mode: use Python 3.12 venv → pip install crewai anthropic openai
+#
+# Without crewai: all 7 /api/agents/* endpoints still work via deterministic fallback.
+# With crewai + ANTHROPIC_API_KEY or OPENAI_API_KEY: full LLM-powered multi-agent mode.
+crewai>=0.51.0; python_version >= "3.10" and python_version < "3.14"
+anthropic>=0.40.0
+openai>=1.0.0
+langgraph>=0.2.0
+chromadb>=0.5.0
+boto3>=1.34.0
+tenacity>=8.2.2
+

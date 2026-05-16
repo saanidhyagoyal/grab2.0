@@ -89,6 +89,44 @@ class LoanService:
         self.db.refresh(loan)
         return loan
 
+    def apply_rate_adjustment(self, loanId: str, userId: str, new_rate: float) -> dict:
+        """
+        Persist a dynamically reviewed interest rate to the loan record.
+        Called after the agent confirms the weekly rate review decision.
+        Recomputes monthly EMI on the remaining outstanding principal.
+        """
+        loan = self.getLoan(loanId, userId)
+        if loan.status != Loan.Status.ACTIVE:
+            raise BadRequestException("Rate adjustment only applies to active loans")
+
+        old_rate = float(loan.interestRate)
+        new_rate_dec = Decimal(str(round(new_rate, 2)))
+
+        # Remaining months on the loan
+        outstanding     = Decimal(loan.outstandingAmount or loan.amount)
+        emis_paid       = int(loan.emisPaid or 0)
+        total_emis      = int(loan.totalEmis or loan.tenureMonths)
+        remaining_months = max(total_emis - emis_paid, 1)
+
+        new_monthly_payment = self._calculateMonthlyPayment(outstanding, new_rate_dec, remaining_months)
+
+        loan.interestRate   = new_rate_dec
+        loan.monthlyPayment = new_monthly_payment
+
+        self.db.commit()
+        self.db.refresh(loan)
+
+        return {
+            "loan_id":             loanId,
+            "old_rate_pct":        old_rate,
+            "new_rate_pct":        float(new_rate_dec),
+            "rate_delta_pct":      round(float(new_rate_dec) - old_rate, 2),
+            "new_monthly_emi_inr": float(new_monthly_payment),
+            "remaining_months":    remaining_months,
+            "outstanding_inr":     float(outstanding),
+            "applied":             True,
+        }
+
     def calculateLoan(self, amount: Decimal, rate: Decimal, tenureMonths: int):
         monthlyPayment = self._calculateMonthlyPayment(amount, rate, tenureMonths)
         totalPayment = (monthlyPayment * Decimal(tenureMonths)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
