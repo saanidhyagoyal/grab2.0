@@ -1,6 +1,4 @@
-<<<<<<< HEAD
-# grab2.0
-=======
+
 # 🧠 GXS Agentic Financial Intelligence Platform
 
 > **GrabHack 2.0 — Problem 9-11**: GenAI-powered agentic financial tools for underserved segments
