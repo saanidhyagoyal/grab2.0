@@ -1,0 +1,112 @@
+{
+  "schema_version": "1.0",
+  "description": "Mock transaction dataset for Grab driver/partner financial wellness demo",
+  "gig_workers": {
+    "gw-001": {
+      "worker_name": "Rajan Kumar",
+      "transactions": [
+        {"date": "2025-03-31", "type": "CREDIT",        "amount": 850,  "description": "Grab ride earnings",          "channel": "MOBILE"},
+        {"date": "2025-03-30", "type": "DEBIT",         "amount": 350,  "description": "Fuel – HP Petrol Pump",       "channel": "UPI"},
+        {"date": "2025-03-30", "type": "CREDIT",        "amount": 1100, "description": "Grab ride earnings",          "channel": "MOBILE"},
+        {"date": "2025-03-29", "type": "BILL_PAYMENT",  "amount": 499,  "description": "Jio mobile recharge",         "channel": "UPI"},
+        {"date": "2025-03-29", "type": "CREDIT",        "amount": 900,  "description": "Grab ride earnings",          "channel": "MOBILE"},
+        {"date": "2025-03-28", "type": "EMI",           "amount": 2800, "description": "Vehicle loan EMI – HDFC",     "channel": "NEFT"},
+        {"date": "2025-03-28", "type": "CREDIT",        "amount": 780,  "description": "Grab ride earnings",          "channel": "MOBILE"},
+        {"date": "2025-03-27", "type": "DEBIT",         "amount": 220,  "description": "Grocery – Big Bazaar",        "channel": "UPI"},
+        {"date": "2025-03-27", "type": "CREDIT",        "amount": 650,  "description": "Grab ride earnings",          "channel": "MOBILE"},
+        {"date": "2025-03-26", "type": "CREDIT",        "amount": 1400, "description": "Grab ride earnings – surge",  "channel": "MOBILE"},
+        {"date": "2025-03-25", "type": "ATM_WITHDRAWAL","amount": 2000, "description": "ATM withdrawal",              "channel": "ATM"},
+        {"date": "2025-03-25", "type": "CREDIT",        "amount": 720,  "description": "Grab ride earnings",          "channel": "MOBILE"},
+        {"date": "2025-03-24", "type": "BILL_PAYMENT",  "amount": 1200, "description": "Electricity bill – BESCOM",  "channel": "UPI"},
+        {"date": "2025-03-24", "type": "CREDIT",        "amount": 830,  "description": "Grab ride earnings",          "channel": "MOBILE"},
+        {"date": "2025-03-23", "type": "CREDIT",        "amount": 960,  "description": "Grab ride earnings",          "channel": "MOBILE"},
+        {"date": "2025-03-22", "type": "DEBIT",         "amount": 550,  "description": "Vehicle servicing",           "channel": "UPI"},
+        {"date": "2025-03-22", "type": "CREDIT",        "amount": 1150, "description": "Grab ride earnings – weekend","channel": "MOBILE"},
+        {"date": "2025-03-21", "type": "CREDIT",        "amount": 1300, "description": "Grab ride earnings – weekend","channel": "MOBILE"},
+        {"date": "2025-03-20", "type": "DEBIT",         "amount": 180,  "description": "Lunch – Swiggy order",        "channel": "UPI"},
+        {"date": "2025-03-20", "type": "CREDIT",        "amount": 700,  "description": "Grab ride earnings",          "channel": "MOBILE"},
+        {"date": "2025-03-19", "type": "CREDIT",        "amount": 820,  "description": "Grab ride earnings",          "channel": "MOBILE"},
+        {"date": "2025-03-18", "type": "DEBIT",         "amount": 300,  "description": "Fuel",                        "channel": "UPI"},
+        {"date": "2025-03-17", "type": "CREDIT",        "amount": 750,  "description": "Grab ride earnings",          "channel": "MOBILE"},
+        {"date": "2025-03-15", "type": "CREDIT",        "amount": 880,  "description": "Grab ride earnings",          "channel": "MOBILE"},
+        {"date": "2025-03-14", "type": "DEBIT",         "amount": 1500, "description": "Rent payment",                "channel": "NEFT"},
+        {"date": "2025-03-10", "type": "CREDIT",        "amount": 5000, "description": "Grab weekly incentive bonus", "channel": "MOBILE"},
+        {"date": "2025-03-07", "type": "CREDIT",        "amount": 760,  "description": "Grab ride earnings",          "channel": "MOBILE"},
+        {"date": "2025-03-05", "type": "DEBIT",         "amount": 250,  "description": "Fuel",                        "channel": "UPI"},
+        {"date": "2025-03-03", "type": "CREDIT",        "amount": 900,  "description": "Grab ride earnings",          "channel": "MOBILE"},
+        {"date": "2025-03-01", "type": "CREDIT",        "amount": 830,  "description": "Grab ride earnings",          "channel": "MOBILE"}
+      ]
+    },
+    "gw-004": {
+      "worker_name": "Sunita Devi",
+      "note": "High-risk profile – income barely covers expenses",
+      "transactions": [
+        {"date": "2025-03-31", "type": "CREDIT",        "amount": 450,  "description": "Grab auto earnings",          "channel": "MOBILE"},
+        {"date": "2025-03-30", "type": "DEBIT",         "amount": 400,  "description": "Fuel – Indian Oil",           "channel": "UPI"},
+        {"date": "2025-03-29", "type": "CREDIT",        "amount": 520,  "description": "Grab auto earnings",          "channel": "MOBILE"},
+        {"date": "2025-03-28", "type": "EMI",           "amount": 4200, "description": "Personal loan EMI",           "channel": "NEFT"},
+        {"date": "2025-03-27", "type": "CREDIT",        "amount": 480,  "description": "Grab auto earnings",          "channel": "MOBILE"},
+        {"date": "2025-03-26", "type": "BILL_PAYMENT",  "amount": 800,  "description": "Electricity TNEB",            "channel": "UPI"},
+        {"date": "2025-03-25", "type": "CREDIT",        "amount": 410,  "description": "Grab auto earnings",          "channel": "MOBILE"},
+        {"date": "2025-03-24", "type": "DEBIT",         "amount": 1200, "description": "Rent",                        "channel": "NEFT"},
+        {"date": "2025-03-23", "type": "CREDIT",        "amount": 390,  "description": "Grab auto earnings",          "channel": "MOBILE"},
+        {"date": "2025-03-22", "type": "TRANSFER_OUT",  "amount": 32000,"description": "Unknown transfer – flagged",   "channel": "NEFT"},
+        {"date": "2025-03-21", "type": "CREDIT",        "amount": 560,  "description": "Grab auto earnings – weekend","channel": "MOBILE"},
+        {"date": "2025-03-20", "type": "CREDIT",        "amount": 430,  "description": "Grab auto earnings",          "channel": "MOBILE"},
+        {"date": "2025-03-19", "type": "DEBIT",         "amount": 350,  "description": "Grocery",                     "channel": "UPI"},
+        {"date": "2025-03-18", "type": "CREDIT",        "amount": 470,  "description": "Grab auto earnings",          "channel": "MOBILE"},
+        {"date": "2025-03-17", "type": "DEBIT",         "amount": 300,  "description": "Fuel",                        "channel": "UPI"},
+        {"date": "2025-03-16", "type": "CREDIT",        "amount": 400,  "description": "Grab auto earnings",          "channel": "MOBILE"},
+        {"date": "2025-03-15", "type": "BILL_PAYMENT",  "amount": 499,  "description": "Airtel recharge",             "channel": "UPI"},
+        {"date": "2025-03-14", "type": "CREDIT",        "amount": 440,  "description": "Grab auto earnings",          "channel": "MOBILE"}
+      ]
+    }
+  },
+  "fraud_scenarios": [
+    {
+      "scenario_id": "FRAUD-001",
+      "worker_id": "gw-004",
+      "description": "Large unexpected transfer 73× average daily income",
+      "flagged_transaction": {
+        "date": "2025-03-22",
+        "type": "TRANSFER_OUT",
+        "amount": 32000,
+        "description": "Unknown transfer – flagged",
+        "risk_score": 91,
+        "risk_level": "CRITICAL"
+      }
+    },
+    {
+      "scenario_id": "FRAUD-002",
+      "worker_id": "gw-002",
+      "description": "Multiple small UPI debits in short window (smurfing pattern)",
+      "flagged_transaction": {
+        "date": "2025-03-28",
+        "type": "UPI_DEBIT",
+        "amount": 9999,
+        "description": "Repeated just-below-10k transfers",
+        "risk_score": 68,
+        "risk_level": "HIGH"
+      }
+    }
+  ],
+  "credit_scenarios": [
+    {
+      "worker_id": "gw-003",
+      "gig_score": 798,
+      "grade": "Excellent",
+      "max_loan_eligible_inr": 109200,
+      "interest_rate_pct": 10.5,
+      "tenure_months": 12
+    },
+    {
+      "worker_id": "gw-004",
+      "gig_score": 455,
+      "grade": "Poor",
+      "max_loan_eligible_inr": 0,
+      "interest_rate_pct": null,
+      "tenure_months": null,
+      "reason": "Score below minimum threshold of 500"
+    }
+  ]
+}
